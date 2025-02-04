@@ -73,11 +73,12 @@ pub use self::{
 pub mod signal {
     //! Asynchronous signal handling (Tokio re-exports).
 
-    #[cfg(unix)]
+    #[cfg(all(unix, not(target_env = "p2")))]
     pub mod unix {
         //! Unix specific signals (Tokio re-exports).
         pub use tokio::signal::unix::*;
     }
+    #[cfg(not(target_env = "p2"))]
     pub use tokio::signal::ctrl_c;
 }
 
@@ -95,8 +96,10 @@ pub mod net {
     pub use tokio::net::{UnixDatagram, UnixListener, UnixStream};
     pub use tokio::{
         io::Ready,
-        net::{TcpListener, TcpSocket, TcpStream, UdpSocket},
+        net::{TcpListener, TcpStream},
     };
+    #[cfg(not(target_os = "wasi"))]
+    pub use tokio::net::{TcpSocket, UdpSocket};
 
     /// Extension trait over async read+write types that can also signal readiness.
     #[doc(hidden)]
